@@ -110,6 +110,7 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string | null
+          free_trial_used: boolean
           full_name: string | null
           id: string
           phone: string | null
@@ -121,6 +122,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
+          free_trial_used?: boolean
           full_name?: string | null
           id: string
           phone?: string | null
@@ -132,6 +134,7 @@ export type Database = {
           avatar_url?: string | null
           created_at?: string
           email?: string | null
+          free_trial_used?: boolean
           full_name?: string | null
           id?: string
           phone?: string | null
@@ -397,6 +400,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_free_trial: {
+        Args: { p_user_id: string }
+        Returns: Json
+      }
       has_permission: {
         Args: { _permission_name: string; _user_id: string }
         Returns: boolean

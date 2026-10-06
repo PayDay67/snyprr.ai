@@ -132,7 +132,9 @@ export interface UserSubscription {
   userId: string;
   planId: string;
   planName: string;
+  billingInterval: string;
   status: 'ACTIVE' | 'CANCELLED' | 'EXPIRED' | 'PENDING';
+  startedAt: string;
   currentPeriodEnd: string;
   subscribedTraderIds: string[];
 }

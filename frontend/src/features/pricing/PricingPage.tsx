@@ -118,14 +118,14 @@ export default function PricingPage() {
         <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-gradient-to-r from-[var(--brand-glow)] via-[var(--bg-surface)] to-[var(--brand-glow)] border border-[var(--brand-primary)]/40 text-center flex items-center justify-center gap-3 shadow-lg">
           <Gift className="w-5 h-5 text-[var(--brand-primary)] flex-shrink-0 animate-bounce" />
           <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
-            <span className="text-[var(--brand-primary)] font-bold">30-Day Free Trial</span> on all plans. Full access, zero risk, cancel anytime.
+            <span className="text-[var(--brand-primary)] font-bold">15-Day Free Trial</span> on all plans. Full access, zero risk, cancel anytime.
           </p>
         </div>
 
         <div className="text-center max-w-2xl mx-auto space-y-4">
           <h1 className="text-4xl md:text-5xl font-extrabold">Simple, Transparent Pricing</h1>
           <p className="text-base text-[var(--text-muted)]">
-            Follow verified prediction track records. Start free for 30 days with full access to high-conviction forecast alerts.
+            Follow verified prediction track records. Start free for 15 days with full access to high-conviction forecast alerts.
           </p>
 
           <div className="inline-flex items-center gap-1.5 p-1 rounded-2xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
@@ -187,7 +187,7 @@ export default function PricingPage() {
                       )}
                     </div>
                     <p className="text-[11px] font-semibold text-[var(--color-success)] mt-1.5 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> 30-Day Free Trial ($0 due today)
+                      <ShieldCheck className="w-3.5 h-3.5" /> 15-Day Free Trial ($0 due today)
                     </p>
                   </div>
 
@@ -213,7 +213,7 @@ export default function PricingPage() {
                   onClick={() => navigate(currentUser ? '/subscriptions' : '/signup')}
                   leftIcon={<Sparkles className="w-4 h-4" />}
                 >
-                  {currentUser ? 'Manage in Subscriptions' : 'Start 30-Day Free Trial'}
+                  {currentUser ? 'Manage in Subscriptions' : 'Start 15-Day Free Trial'}
                 </Button>
               </GlassCard>
             );

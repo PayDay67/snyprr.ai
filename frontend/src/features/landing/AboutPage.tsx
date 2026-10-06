@@ -148,7 +148,7 @@ export default function AboutPage() {
                 <section className="text-center">
                     <GlassCard className="max-w-2xl mx-auto py-12 px-8">
                         <h2 className="text-2xl md:text-3xl font-extrabold mb-3">Ready to join us?</h2>
-                        <p className="text-[var(--text-muted)] mb-8 text-sm">Start your 30-day free trial. No credit card required.</p>
+                        <p className="text-[var(--text-muted)] mb-8 text-sm">Start your 15-day free trial. No credit card required.</p>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                             <Link to="/signup"><Button variant="primary" size="lg">Start Free Trial</Button></Link>
                             <Link to="/contact-us"><Button variant="secondary" size="lg">Get in Touch</Button></Link>

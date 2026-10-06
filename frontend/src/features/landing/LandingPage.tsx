@@ -145,13 +145,13 @@ function PricingSection() {
       <div className="text-center mb-10">
         <p className="text-xs font-medium text-[var(--brand-primary)] uppercase tracking-widest mb-2">Plans &amp; Pricing</p>
         <h2 className="text-2xl md:text-3xl font-bold text-[var(--text-primary)]">Simple, Transparent Pricing</h2>
-        <p className="text-[var(--text-muted)] mt-3 text-sm max-w-xl mx-auto">Follow verified prediction track records. Start free for 30 days with full access.</p>
+        <p className="text-[var(--text-muted)] mt-3 text-sm max-w-xl mx-auto">Follow verified prediction track records. Start free for 15 days with full access.</p>
       </div>
 
       <div className="max-w-2xl mx-auto mb-8 p-4 rounded-2xl bg-gradient-to-r from-[var(--brand-glow)] via-[var(--bg-surface)] to-[var(--brand-glow)] border border-[var(--brand-primary)]/40 text-center flex items-center justify-center gap-3 shadow-lg">
         <Gift className="w-5 h-5 text-[var(--brand-primary)] flex-shrink-0 animate-bounce" />
         <p className="text-xs sm:text-sm font-semibold text-[var(--text-primary)]">
-          <span className="text-[var(--brand-primary)] font-bold">30-Day Free Trial</span> on all plans. Full access, zero risk, cancel anytime.
+          <span className="text-[var(--brand-primary)] font-bold">15-Day Free Trial</span> on all plans. Full access, zero risk, cancel anytime.
         </p>
       </div>
 
@@ -186,7 +186,7 @@ function PricingSection() {
                     {billingCycle === 'yearly' && <span className="text-[10px] text-[var(--text-muted)] ml-2">(billed ${plan.priceYearly}/yr)</span>}
                   </div>
                   <p className="text-[11px] font-semibold text-[var(--color-success)] mt-1.5 flex items-center gap-1">
-                    <ShieldCheck className="w-3.5 h-3.5" /> 30-Day Free Trial ($0 due today)
+                    <ShieldCheck className="w-3.5 h-3.5" /> 15-Day Free Trial ($0 due today)
                   </p>
                 </div>
                 <div className="space-y-3 pt-4 border-t border-[var(--border-subtle)]">
@@ -204,7 +204,7 @@ function PricingSection() {
               <Button variant={plan.isPopular ? 'primary' : 'secondary'} size="lg" className="w-full mt-8"
                 onClick={() => navigate(currentUser ? '/subscriptions' : '/signup')}
                 leftIcon={<Sparkles className="w-4 h-4" />}>
-                {currentUser ? 'Manage in Subscriptions' : 'Start 30-Day Free Trial'}
+                {currentUser ? 'Manage in Subscriptions' : 'Start 15-Day Free Trial'}
               </Button>
             </GlassCard>
           );
@@ -460,7 +460,7 @@ export default function LandingPage() {
             { q: 'Do I need to execute trades on Snyprr.ai?', a: 'No. Snyprr.ai is purely a prediction and analytics platform. You follow setups and track outcomes — all execution decisions remain yours.' },
             { q: 'How is prediction accuracy verified?', a: 'Every prediction is published with entry, buying zone, and selling zone levels. Outcomes are declared by traders and tracked against live market data for a transparent track record.' },
             { q: 'What markets are covered?', a: 'Currently Crypto (BTC, ETH, SOL, XRP) and Commodities (Gold, Silver). More instruments are added as the platform grows.' },
-            { q: 'Is there a free trial?', a: 'Yes — all plans come with a 30-day free trial. Full access, zero risk, cancel anytime before the trial ends.' },
+            { q: 'Is there a free trial?', a: 'Yes — all plans come with a 15-day free trial. Full access, zero risk, cancel anytime before the trial ends.' },
             { q: 'When will the full platform launch?', a: 'The public beta is live now. Full backend integration with real-time data, JWT auth, and live push notifications is rolling out in the next phase.' },
           ].map((faq) => (
             <GlassCard key={faq.q} hoverEffect={false} className="p-5 space-y-2">

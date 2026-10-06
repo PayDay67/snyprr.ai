@@ -1,52 +1,122 @@
 import React, { useState } from 'react';
-import { Crown, Check, Sparkles, ShieldCheck, Zap, Gift, Clock } from 'lucide-react';
+import { Crown, Check, Sparkles, ShieldCheck, Zap, Gift, Clock, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { Skeleton } from '../../components/ui/Skeleton';
-import { useSubscriptionPlans, useSubscribeToPlan } from '../../hooks/useSubscriptionsQuery';
+import { useSubscriptionPlans, useActivateFreeTrial, useTrialState } from '../../hooks/useSubscriptionsQuery';
 import { useUIStore } from '../../state/useUIStore';
+import { ApiError } from '../../services/api/types';
 
 export default function SubscriptionsPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  const { data, isLoading } = useSubscriptionPlans();
-  const subscribeMutation = useSubscribeToPlan();
+  const { data, isLoading: plansLoading } = useSubscriptionPlans();
+  const { state: trialState, daysRemaining, isLoading: trialLoading } = useTrialState();
+  const activateMutation = useActivateFreeTrial();
   const { addToast } = useUIStore();
 
   const plans = data?.data || [];
+  const isLoading = plansLoading || trialLoading;
 
   const handleOpenCheckout = (planId: string) => {
+    // Guard: never open the modal if the trial has been used
+    if (trialState !== 'none') return;
     setSelectedPlanId(planId);
     setIsCheckoutOpen(true);
   };
 
-  const handleConfirmSubscribe = async () => {
-    if (!selectedPlanId) return;
+  const handleConfirmActivate = async () => {
     try {
-      await subscribeMutation.mutateAsync(selectedPlanId);
+      await activateMutation.mutateAsync();
+      setIsCheckoutOpen(false);
       addToast({
         type: 'success',
-        title: '30-Day Free Trial Started 🎉',
-        message: 'Your 30-day trial is now active with full access to premium predictions and VIP alerts.',
+        title: '15-Day Free Trial Started 🎉',
+        message: 'Your trial is now active. Enjoy full access to premium predictions and VIP alerts.',
       });
+    } catch (err) {
       setIsCheckoutOpen(false);
-    } catch {
-      addToast({
-        type: 'danger',
-        title: 'Activation Failed',
-        message: 'Could not start trial. Please try again.',
-      });
+      // 409 = already used — backend enforced the restriction
+      if (err instanceof ApiError && err.statusCode === 409) {
+        addToast({
+          type: 'danger',
+          title: 'Trial Already Used',
+          message: 'Free trial has already been used on this account.',
+        });
+      } else {
+        addToast({
+          type: 'danger',
+          title: 'Activation Failed',
+          message: 'Could not start trial. Please try again.',
+        });
+      }
     }
   };
 
   const selectedPlan = plans.find((p) => p.id === selectedPlanId);
 
-  return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* 30-Day Free Trial Banner */}
+  // ─── Trial banner content driven entirely by backend state ─────────────────
+
+  const renderTrialBanner = () => {
+    if (trialLoading) {
+      return <Skeleton className="h-20 rounded-3xl" />;
+    }
+
+    if (trialState === 'active') {
+      return (
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-[var(--color-success-bg)] via-[var(--bg-surface)] to-[var(--color-success-bg)] border border-[var(--color-success)]/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--color-success)] text-white flex items-center justify-center flex-shrink-0 shadow-md">
+              <CheckCircle2 className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+                Free Trial Active
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[var(--color-success)]/30">
+                  {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} remaining
+                </span>
+              </h2>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                You have full access to premium predictions and VIP alerts during your trial.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-[var(--color-success)] font-semibold whitespace-nowrap">
+            <Clock className="w-4 h-4" />
+            {daysRemaining} {daysRemaining === 1 ? 'day' : 'days'} left
+          </div>
+        </div>
+      );
+    }
+
+    if (trialState === 'expired') {
+      return (
+        <div className="p-4 rounded-3xl bg-gradient-to-r from-[var(--bg-secondary)] via-[var(--bg-surface)] to-[var(--bg-secondary)] border border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+          <div className="flex items-center gap-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--bg-secondary)] text-[var(--text-muted)] flex items-center justify-center flex-shrink-0 shadow-md border border-[var(--border-subtle)]">
+              <AlertCircle className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
+                Free Trial Expired
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--bg-secondary)] text-[var(--text-muted)] border border-[var(--border-subtle)]">
+                  Used
+                </span>
+              </h2>
+              <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                Your 15-day trial has ended. Subscribe to a plan below to continue access.
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // trialState === 'none' — trial available
+    return (
       <div className="p-4 rounded-3xl bg-gradient-to-r from-[var(--brand-glow)] via-[var(--bg-surface)] to-[var(--brand-glow)] border border-[var(--brand-primary)]/40 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-10 h-10 rounded-2xl bg-[var(--brand-primary)] text-white flex items-center justify-center flex-shrink-0 shadow-md">
@@ -54,17 +124,78 @@ export default function SubscriptionsPage() {
           </div>
           <div>
             <h2 className="text-sm sm:text-base font-bold text-[var(--text-primary)] flex items-center gap-2">
-              30-Day Free Trial Available
+              15-Day Free Trial Available
               <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[var(--color-success-bg)] text-[var(--color-success)] border border-[var(--color-success)]/30">
                 0 Cost Today
               </span>
             </h2>
             <p className="text-xs text-[var(--text-muted)] mt-0.5">
-              Experience all VIP trader predictions, high-conviction rationales, and real-time alerts free for 30 days.
+              Experience all VIP trader predictions, high-conviction rationales, and real-time alerts free for 15 days.
             </p>
           </div>
         </div>
       </div>
+    );
+  };
+
+  // ─── Per-plan CTA button label and behaviour ───────────────────────────────
+
+  const renderPlanButton = (planId: string, isPopular: boolean) => {
+    if (trialLoading) {
+      return (
+        <Button variant={isPopular ? 'primary' : 'secondary'} size="lg" className="w-full mt-8" disabled>
+          <Skeleton className="h-4 w-32 inline-block" />
+        </Button>
+      );
+    }
+
+    if (trialState === 'active') {
+      return (
+        <Button
+          variant="secondary"
+          size="lg"
+          className="w-full mt-8 cursor-default opacity-80"
+          leftIcon={<CheckCircle2 className="w-4 h-4 text-[var(--color-success)]" />}
+          disabled
+        >
+          Free Trial Active — {daysRemaining}d left
+        </Button>
+      );
+    }
+
+    if (trialState === 'expired') {
+      return (
+        <Button
+          variant={isPopular ? 'primary' : 'secondary'}
+          size="lg"
+          className="w-full mt-8"
+          leftIcon={<Crown className="w-4 h-4" />}
+          onClick={() => handleOpenCheckout(planId)}
+          disabled
+        >
+          Free Trial Expired — Subscribe to Upgrade
+        </Button>
+      );
+    }
+
+    // trialState === 'none'
+    return (
+      <Button
+        variant={isPopular ? 'primary' : 'secondary'}
+        size="lg"
+        className="w-full mt-8"
+        leftIcon={<Sparkles className="w-4 h-4" />}
+        onClick={() => handleOpenCheckout(planId)}
+      >
+        Start 15-Day Free Trial
+      </Button>
+    );
+  };
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-8">
+      {/* Trial Status Banner */}
+      {renderTrialBanner()}
 
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
@@ -144,9 +275,21 @@ export default function SubscriptionsPage() {
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-semibold text-[var(--color-success)] mt-1.5 flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> Includes 30-Day Free Trial
-                    </p>
+                    {trialState === 'none' && (
+                      <p className="text-[11px] font-semibold text-[var(--color-success)] mt-1.5 flex items-center gap-1">
+                        <ShieldCheck className="w-3.5 h-3.5" /> Includes 15-Day Free Trial
+                      </p>
+                    )}
+                    {trialState === 'active' && (
+                      <p className="text-[11px] font-semibold text-[var(--color-success)] mt-1.5 flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> Trial active — {daysRemaining}d remaining
+                      </p>
+                    )}
+                    {trialState === 'expired' && (
+                      <p className="text-[11px] font-semibold text-[var(--text-muted)] mt-1.5 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5" /> Trial period has ended
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-3 pt-4 border-t border-[var(--border-subtle)]">
@@ -164,26 +307,18 @@ export default function SubscriptionsPage() {
                   </div>
                 </div>
 
-                <Button
-                  variant={plan.isPopular ? 'primary' : 'secondary'}
-                  size="lg"
-                  className="w-full mt-8"
-                  leftIcon={<Sparkles className="w-4 h-4" />}
-                  onClick={() => handleOpenCheckout(plan.id)}
-                >
-                  Start 30-Day Free Trial
-                </Button>
+                {renderPlanButton(plan.id, plan.isPopular ?? false)}
               </GlassCard>
             );
           })}
         </div>
       )}
 
-      {/* Mock Checkout Modal */}
+      {/* Activation Confirmation Modal — only reachable when trialState === 'none' */}
       <Modal
         isOpen={isCheckoutOpen}
         onClose={() => setIsCheckoutOpen(false)}
-        title="Start 30-Day Free Trial"
+        title="Start 15-Day Free Trial"
         maxWidth="md"
       >
         {selectedPlan && (
@@ -192,7 +327,7 @@ export default function SubscriptionsPage() {
               <div className="flex justify-between items-center">
                 <span className="text-sm font-semibold text-[var(--text-primary)]">{selectedPlan.name} Tier</span>
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-md bg-[var(--color-success-bg)] text-[var(--color-success)]">
-                  30 Days Free
+                  15 Days Free
                 </span>
               </div>
               <p className="text-xs text-[var(--text-muted)]">{selectedPlan.description}</p>
@@ -200,10 +335,13 @@ export default function SubscriptionsPage() {
               <div className="pt-2 border-t border-[var(--border-subtle)] space-y-1.5 text-xs">
                 <div className="flex justify-between text-[var(--text-secondary)]">
                   <span>Regular Rate:</span>
-                  <span>${billingCycle === 'monthly' ? selectedPlan.priceMonthly : selectedPlan.priceYearly}/{billingCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                  <span>
+                    ${billingCycle === 'monthly' ? selectedPlan.priceMonthly : selectedPlan.priceYearly}/
+                    {billingCycle === 'monthly' ? 'mo' : 'yr'}
+                  </span>
                 </div>
                 <div className="flex justify-between text-[var(--color-success)] font-semibold">
-                  <span>30-Day Free Trial Discount:</span>
+                  <span>15-Day Free Trial Discount:</span>
                   <span>-100%</span>
                 </div>
                 <div className="flex justify-between text-[var(--text-primary)] font-bold text-sm pt-1 border-t border-[var(--border-subtle)]">
@@ -215,7 +353,10 @@ export default function SubscriptionsPage() {
 
             <div className="p-3 rounded-xl border border-[var(--border-subtle)] text-xs text-[var(--text-muted)] flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[var(--brand-primary)] flex-shrink-0" />
-              <span>Zero risk. Instant activation. You will not be billed during your 30-day trial period.</span>
+              <span>
+                Zero risk. Instant activation. You will not be billed during your 15-day trial period.
+                This trial can only be activated once per account.
+              </span>
             </div>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-[var(--border-subtle)]">
@@ -224,11 +365,11 @@ export default function SubscriptionsPage() {
               </Button>
               <Button
                 variant="primary"
-                onClick={handleConfirmSubscribe}
-                isLoading={subscribeMutation.isPending}
+                onClick={handleConfirmActivate}
+                isLoading={activateMutation.isPending}
                 leftIcon={<Zap className="w-4 h-4" />}
               >
-                Activate 30-Day Free Trial
+                Activate 15-Day Free Trial
               </Button>
             </div>
           </div>

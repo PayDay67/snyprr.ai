@@ -103,7 +103,7 @@ export default function TermsPage() {
                         and premium features is gated by subscription tier. Tier differences are clearly indicated within the platform.
                     </p>
                     <p>
-                        All paid plans include a 30-day free trial. You may cancel at any time before the trial ends without being charged.
+                        All paid plans include a 15-day free trial. You may cancel at any time before the trial ends without being charged.
                         Refunds after the trial period are at Snyprr.ai's discretion.
                     </p>
                 </Section>
@@ -165,7 +165,7 @@ export default function TermsPage() {
                         <Link to="/contact-us" className="text-[var(--brand-primary)] hover:underline">Contact us</Link>
                     </p>
                     <Link to="/signup">
-                        <Button variant="primary" size="md">Get Started — 30 Days Free</Button>
+                        <Button variant="primary" size="md">Get Started — 15 Days Free</Button>
                     </Link>
                 </div>
 

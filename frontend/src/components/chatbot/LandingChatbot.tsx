@@ -109,7 +109,7 @@ const KNOWLEDGE_BASE: {
   {
     keywords: ['free', 'trial', 'free tier', 'zero cost'],
     response: {
-      text: "🎁 **Yes!** Trade Beast has a generous **Free Tier** to start tracking verified ideas right now. Premium plans also come with a risk-free **30-Day Trial**.",
+      text: "🎁 **Yes!** Trade Beast has a generous **Free Tier** to start tracking verified ideas right now. Premium plans also come with a risk-free **15-Day Trial**.",
       action: { label: 'Create Free Account', path: '/signup' },
       suggestions: ['Explore Pricing Section', 'Who are the traders?'],
     },

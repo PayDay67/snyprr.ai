@@ -36,6 +36,7 @@ export interface IUserApi {
 export interface ISubscriptionApi {
   getPlans(): Promise<ApiResponse<SubscriptionPlan[]>>;
   getMySubscriptions(): Promise<ApiResponse<UserSubscription[]>>;
+  activateFreeTrial(): Promise<ApiResponse<{ subscriptionId: string; startedAt: string; expiresAt: string; status: string }>>;
   subscribeToPlan(planId: string): Promise<ApiResponse<{ subscriptionId: string; status: string }>>;
 }
 

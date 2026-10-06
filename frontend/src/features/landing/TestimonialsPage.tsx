@@ -92,7 +92,7 @@ export default function TestimonialsPage() {
                 <div className="text-center pt-4">
                     <GlassCard className="max-w-xl mx-auto py-10 px-8">
                         <h2 className="text-xl font-extrabold mb-2">Join thousands of traders</h2>
-                        <p className="text-sm text-[var(--text-muted)] mb-6">Start your 30-day free trial. No credit card needed.</p>
+                        <p className="text-sm text-[var(--text-muted)] mb-6">Start your 15-day free trial. No credit card needed.</p>
                         <Link to="/signup">
                             <Button variant="primary" size="lg">Start Free Trial</Button>
                         </Link>

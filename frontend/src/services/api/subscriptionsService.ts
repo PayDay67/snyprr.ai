@@ -6,7 +6,7 @@
 import type { SubscriptionPlan, UserSubscription } from '../../types';
 import type { ISubscriptionApi } from './apiClient';
 import type { ApiResponse } from './types';
-import { httpGet } from './httpClient';
+import { httpGet, httpPost } from './httpClient';
 import { httpGetPublic } from './httpClient';
 
 // ─── Backend shapes ───────────────────────────────────────────────────────────
@@ -25,7 +25,7 @@ interface BackendPlan {
 interface BackendSubscription {
   id: string;
   status: string;
-  started_at: string;
+  started_at: string | null;
   expires_at: string | null;
   created_at: string;
   plan: {
@@ -38,10 +38,16 @@ interface BackendSubscription {
   } | null;
 }
 
+interface BackendTrialActivation {
+  subscriptionId: string;
+  startedAt: string;
+  expiresAt: string;
+  status: string;
+}
+
 // ─── Adapters ─────────────────────────────────────────────────────────────────
 
 function toFrontendPlan(p: BackendPlan): SubscriptionPlan {
-  // Map billing_interval to monthly/yearly prices
   const isYearly = p.billing_interval === 'yearly';
   return {
     id: p.id,
@@ -60,7 +66,9 @@ function toFrontendSubscription(s: BackendSubscription): UserSubscription {
     userId: '',
     planId: s.plan?.id ?? '',
     planName: s.plan?.name ?? 'Unknown Plan',
+    billingInterval: s.plan?.billing_interval ?? '',
     status: s.status as UserSubscription['status'],
+    startedAt: s.started_at ?? '',
     currentPeriodEnd: s.expires_at ?? '',
     subscribedTraderIds: [],
   };
@@ -83,6 +91,22 @@ class SubscriptionsService implements ISubscriptionApi {
     return {
       success: true,
       data: (raw.data ?? []).map(toFrontendSubscription),
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Activate the one-time 15-day free trial.
+   * Backend enforces the one-time restriction — returns 409 if already used.
+   */
+  async activateFreeTrial(): Promise<ApiResponse<BackendTrialActivation>> {
+    const raw = await httpPost<{ data: BackendTrialActivation; message: string }>(
+      '/api/subscriptions/trial'
+    );
+    return {
+      success: true,
+      data: raw.data,
+      message: raw.message,
       timestamp: new Date().toISOString(),
     };
   }

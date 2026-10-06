@@ -260,7 +260,7 @@ begin
 
   select id into v_plan_id from public.subscription_plans where name = 'Free Trial';
   insert into public.user_subscriptions (user_id, plan_id, status, started_at, expires_at)
-  values (new.id, v_plan_id, 'ACTIVE', now(), now() + interval '1 month');
+  values (new.id, v_plan_id, 'ACTIVE', now(), now() + interval '15 days');
 
   return new;
 end;
