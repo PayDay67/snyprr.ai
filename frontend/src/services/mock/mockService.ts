@@ -184,6 +184,32 @@ class MockSubscriptionService implements ISubscriptionApi {
     return { success: true, data: [], timestamp: new Date().toISOString() };
   }
 
+    async activateFreeTrial(): Promise<
+    ApiResponse<{
+      subscriptionId: string;
+      startedAt: string;
+      expiresAt: string;
+      status: string;
+    }>
+  > {
+    await delay();
+
+    const startedAt = new Date();
+    const expiresAt = new Date(startedAt);
+    expiresAt.setDate(expiresAt.getDate() + 15);
+
+    return {
+      success: true,
+      data: {
+        subscriptionId: `trial_${Date.now()}`,
+        startedAt: startedAt.toISOString(),
+        expiresAt: expiresAt.toISOString(),
+        status: 'ACTIVE',
+      },
+      timestamp: new Date().toISOString(),
+    };
+  }
+
   async subscribeToPlan(_planId: string): Promise<ApiResponse<{ subscriptionId: string; status: string }>> {
     await delay();
     return { success: true, data: { subscriptionId: `sub_${Date.now()}`, status: 'ACTIVE' }, timestamp: new Date().toISOString() };
